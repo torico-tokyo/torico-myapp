@@ -1,0 +1,17 @@
+# ローカル開発用 docker-compose
+# mac を新調し、旧バージョンの Python が入っていないい場合は、
+# この docker-compose を使って開発環境を起動します。
+# PyCharm の Python Interpreter に設定することで、デバッグ実行ができます。
+version: '3'
+
+services:
+  myapp:
+    image: torico/myapp
+    container_name: myapp
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: ${DJANGO_SETTINGS_MODULE:-myapp.settings.local}
+    restart: always
+    volumes:
+      - ../app:/var/src/app

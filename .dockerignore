@@ -1,0 +1,7 @@
+.git
+.idea
+.venv
+*.pyc
+*/__pycache__
+mediafiles
+staticfiles

@@ -135,7 +135,7 @@ Admin などで static ディレクトリを使うため、Dockerビルド段階
 
 ```Dockerfile
 FROM alpine:3.12 AS builder
-# マルチステージビルドを試してみたが、campaignfox などでやってるような
+# マルチステージビルドを試してみたが、他のプロジェクトでやってるような
 # apk --virtual をつかう手法と比べてイメージサイズを少なくできるわけではない。
 # --virtual のほうが dockerfile が短くできるので、そっちがいいかな。
 
@@ -230,7 +230,7 @@ Alpine linux では、python コマンドでは python3 が起動できないた
 
 Path mappings も設定します。
 
-プロジェクト内の `django` ディレクトリが、`/var/src/app` にマッピングされるようにします。
+プロジェクト内の `app` ディレクトリを、`/var/src/app` にマッピングします。
 
 ### PyCharm での Project Structure の設定
 
@@ -351,12 +351,13 @@ kubernetes で起動する際、settings を外から指定できるようにす
 ```
 processes = %k
 ```
-は、コア数をそのまま使っています。
 
-外部通信 (DB, ElasticSearch, Redis, メール, ログ) が多かったりして
+こちらは、processes の数値としてCPUコア数をそのまま使っています。
+
+外部通信 (DB, 決済API、ElasticSearch, Redis, メール, ログ等) が多かったりして
 待機時間が多いアプリの場合は、並列で多くのリクエストを扱えるよう、threads は多めにしています。
 
-検証環境は少なめ、本番環境は多めにするため
+検証環境は少なめ、本番環境は多めにするために
 
 ```
 threads = %(%k * 10)
@@ -382,7 +383,7 @@ kubectl apply -f ingress.yml
 としてコピーしておき、そのパスを環境変数 KUBECONFIG に設定することで、
 本番クラスタを操作できます。
 
-便宜上、今回のマニフェストは
+便宜上、今回のマニフェスト (deployment.yml) は
 
 ```yaml
 containers:
@@ -401,7 +402,8 @@ containers:
 ```
 となります。
 
-これは EKS を想定していますが、EKS ではなく独自にクラスタを立てている場合は
+これは EKS 内での起動を想定しているため、認証の設定がありません。
+EKS ではなく独自にクラスタを立てている場合は、下記のように認証設定を行います。
 
 ```yaml
 containers:
@@ -412,7 +414,7 @@ imagePullSecrets:
   - name: ecr-credeintial
 ```
 
-のようにして、ecr-credential を作る時は、python スクリプトでこのように作っています。
+このようにして、ecr-credential を作る時は、python スクリプトでこのように作っています。
 
 (`aws ecr get-login` の結果を、`kubectl create secret` する)
 
